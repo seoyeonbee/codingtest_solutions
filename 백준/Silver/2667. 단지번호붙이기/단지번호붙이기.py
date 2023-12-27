@@ -1,51 +1,38 @@
-from collections import deque
-
 # 이동할 네 방향 정의
 dx = [0, 0, 1, -1]
 dy = [1, -1, 0, 0]
 
-def bfs(graph, x, y):
-    n = len(graph)
+def dfs(x, y):
+    # 지도를 벗어난 경우 즉시 종료
+    if x < 0 or x >= n or y < 0 or y >= n:
+        return False
     
-    q = deque() # 큐 생성
-    q.append((x, y)) # 큐에 현재 좌표 넣기
-    
-    graph[x][y] = 0  # 다시 방문하지 않도록 현재좌표값을 0으로 바꿔주기
-    
-    cnt = 1 # 집 개수 카운트(초기화)
-    
-    while q: # 큐가 빌때까지 반복
-        x, y = q.popleft()
+    if graph[x][y] == 1: # 현재 노드가 집이 있는 곳이라면
+        global cnt # (함수 밖에서도 사용할 수 있도록) 집 개수 카운팅을 위한 전역 변수 설정
+        cnt += 1 # 집 개수 카운팅
+        
+        graph[x][y] = 0 # 다시 방문하지 않도록 현재좌표값을 0으로 바꿔주기
         
         for i in range(4): # 현재 위치에서 네 방향으로 위치 확인
             next_x = x + dx[i] # 이동 후의 x좌표(행)
             next_y = y + dy[i] # 이동 후의 y좌표(열)
-            
-            # 지도를 벗어난 경우 무시
-            if next_x < 0 or next_x >= n or next_y < 0 or next_y >= n:
-                continue
-                
-            # 집이 없는 곳(0)을 만난 경우 무시
-            if graph[next_x][next_y] == 0:
-                continue
-                
-            # 해당 위치가 집이 있는 곳(1)인 경우
-            if graph[next_x][next_y] == 1:
-                graph[next_x][next_y] = 0 # 다시 방문하지 않도록 현재 좌표값을 0으로 바꾸고
-                q.append((next_x, next_y)) # 큐에 좌표를 넣고
-                cnt += 1 # 집 개수 카운트
-                
-    return cnt # bfs함수를 호출할 경우 집 개수가 리턴됨
+            dfs(next_x, next_y) # 이동 후 위치에서 재귀적으로 dfs 호출
+        return True
+    
+    return False # 그 외(집이 없는 곳) 종료
+
                 
 # 입력
 n = int(input()) # 지도의 크기
 graph = [list(map(int, input())) for _ in range(n)] # n*n개의 집 유무 정보 (있으면 1, 없으면 0)
 
+cnt = 0 # 집 개수
 home = [] # 단지별 집 개수를 넣을 빈 리스트 생성
 for i in range(n):
     for j in range(n):
-        if graph[i][j] == 1:
-            home.append(bfs(graph, i, j)) # 리스트에 집 개수 추가
+        if dfs(i, j) == True:
+            home.append(cnt) # 리스트에 집 개수 추가
+            cnt = 0 # 집 개수 초기화 (다른 단지를 돌아야 하므로)
             
 home.sort() # 단지별 집 개수 리스트 오름차순 정리
 
