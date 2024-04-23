@@ -1,0 +1,9 @@
+-- 코드를 작성해주세요
+SELECT ID, EMAIL, FIRST_NAME, LAST_NAME
+FROM DEVELOPERS AS D
+WHERE SKILL_CODE & 
+-- 프론트엔드에 해당되는 전체 스킬코드들의 합과 비트 연산 -> 하나라도 포함되어있다면 True
+(SELECT SUM(CODE) AS CODESUM
+ FROM SKILLCODES 
+ WHERE CATEGORY = 'Front End')
+ORDER BY ID;
